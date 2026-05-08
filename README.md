@@ -18,11 +18,27 @@ Built for people who need someone to talk to.
 - Groq API key (free at console.groq.com)
 
 ### Backend
-```bash
 cd backend
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-```
 
-Create a `.env` file inside backend/:
+Create a .env file inside backend/:
+GROQ_API_KEY=your_key_here
+
+Run backend:
+uvicorn main:app --reload
+
+### Frontend
+cd frontend
+npm install
+npm run dev
+
+Open http://localhost:5173
+
+## Disclaimer
+This is an AI chatbot. Not a licensed psychologist.
+In emergencies call a crisis helpline immediately.
+
+## License
+MIT — Free to use and modify
