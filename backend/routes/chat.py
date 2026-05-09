@@ -105,19 +105,25 @@ async def chat(request: Request, req: ChatRequest):
         "content": user_content
     })
 
-    response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
-        messages=messages,
-        temperature=0.4,
-        max_tokens=300
-    )
+    try:
+        response = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=messages,
+            temperature=0.4,
+            max_tokens=300
+        )
+        reply = response.choices[0].message.content
 
-    reply = response.choices[0].message.content
+        if crisis:
+            reply += f"\n\n---\n🆘 **Helplines:**\n{HELPLINE_MESSAGE}"
 
-    if crisis:
-        reply += f"\n\n---\n🆘 **Helplines:**\n{HELPLINE_MESSAGE}"
+        return {
+            "reply": reply,
+            "crisis": crisis
+        }
 
-    return {
-        "reply": reply,
-        "crisis": crisis
-    }
+    except Exception as e:
+        return {
+            "reply": "I'm currently unavailable. Please try again in a moment. If this is an emergency, call a helpline immediately: 9152987821",
+            "crisis": False
+        }
