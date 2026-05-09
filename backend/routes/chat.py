@@ -1,14 +1,16 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 from pydantic import BaseModel
 from groq import Groq
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
-# Client created once, not on every request
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 CRISIS_KEYWORDS = [
@@ -17,7 +19,6 @@ CRISIS_KEYWORDS = [
     "self harm", "cut myself", "ending it all", "take my life",
     "marna chahta", "marna chahti", "khud ko hurt",
     "jeena nahi chahta", "aatmhatya", "khud ko khatam",
-    # intent-based additions
     "don't want to be here", "disappear forever", "no point living",
     "better off dead", "everyone would be better without me",
     "khatam kar loon", "jeena nahi", "mar jaana chahta",
@@ -83,7 +84,8 @@ def is_crisis(text: str) -> bool:
     return any(kw in lower for kw in CRISIS_KEYWORDS)
 
 @router.post("/chat")
-async def chat(req: ChatRequest):
+@limiter.limit("20/minute")
+async def chat(request: Request, req: ChatRequest):
     crisis = is_crisis(req.message)
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
