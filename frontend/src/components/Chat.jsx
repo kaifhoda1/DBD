@@ -30,7 +30,7 @@ export default function Chat({ language }) {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://127.0.0.1:8000/chat", {
+      const res = await axios.post("https://dbd-production-c651.up.railway.app/chat", {
         message: userMsg,
         history: newMessages.slice(0, -1),
         language: language,
