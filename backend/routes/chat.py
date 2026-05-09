@@ -9,7 +9,13 @@ from dotenv import load_dotenv
 load_dotenv()
 
 router = APIRouter()
-limiter = Limiter(key_func=get_remote_address)
+def get_real_ip(request: Request):
+    forwarded = request.headers.get("X-Forwarded-For")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return request.client.host
+
+limiter = Limiter(key_func=get_real_ip)
 
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
